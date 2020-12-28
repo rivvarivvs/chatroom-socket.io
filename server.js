@@ -2,12 +2,12 @@ const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
 
-const app = express.app();
+const app = express();
 
-const io = socketio(server);
 const server = http.createServer(app);
+const io = socketio(server);
 
-const { addUser, removeUser, getUser, getUsers } = require("./utils/User");
+const { addUser, removeUser, getUser, getUsers } = require("./users");
 
 io.on("connect", (socket) => {
   socket.on("join", ({ username, room }, callback) => {
@@ -35,7 +35,7 @@ io.on("connect", (socket) => {
   callback();
 });
 
-socket.on("sendMessage", (message, callback) => {
+io.on("sendMessage", (message, callback) => {
   const user = getUser(socket.id);
 
   io.to(user.room).emit("message", {
@@ -46,7 +46,7 @@ socket.on("sendMessage", (message, callback) => {
   callback();
 });
 
-socket.on("disconnect", () => {
+io  .on("disconnect", () => {
   const userLeft = removeUser(socket.id);
 
   if (userLeft) {
